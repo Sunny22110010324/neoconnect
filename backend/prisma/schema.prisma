@@ -1,7 +1,7 @@
 generator client {
- provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
-
 datasource db {
  provider = "postgresql"
  url      = env("postgresql://neoconnect_user:9VoyqkrKxOIirP08FaaWX6gCTEoQcl6l@dpg-d6q1lap5pdvs73a4fei0-a/neoconnect")
