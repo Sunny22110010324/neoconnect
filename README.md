@@ -2,10 +2,9 @@
 
 <div align="center">
   <!-- Your custom image -->
-  <img src="neoconnect.png" alt="NeoConnect Logo" width="800" height="200" style="max-width:100%; height:auto;" />
+  <img src="neconnect.png" alt="NeoConnect Logo" width="800" height="400" style="max-width:100%; height:auto;" />
   
-  <!-- Optional banner (you can keep or remove this) -->
-  <img src="https://via.placeholder.com/800x200/0a1929/ffffff?text=NeoConnect+Complaint+Management+System" alt="NeoConnect Banner" width="100%" />
+ 
   
   [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?logo=node.js)](https://nodejs.org)
