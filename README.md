@@ -47,7 +47,7 @@
 | Platform | URL |
 |----------|-----|
 | 🌐 **Frontend (Vercel)** | [https://your-vercel-link.vercel.app](https://your-vercel-link.vercel.app) |
-| ⚙️ **Backend (Render)** | [[https://your-render-link.onrender.com](https://your-render-link.onrender.com](https://neoconnect-iggu.onrender.com)) |
+| ⚙️ **Backend (Render)** | [https://neoconnect-iggu.onrender.com] |
 
 ---
 
