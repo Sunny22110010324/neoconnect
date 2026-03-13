@@ -9,6 +9,9 @@ exports.register = async (req, res) => {
   try {
     const { email, password, name, role } = req.body;
 
+    // Log what we received (for debugging)
+    console.log("Register attempt:", { email, nameProvided: !!name });
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -18,7 +21,7 @@ exports.register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user – name and role are optional; default role to "USER"
+    // Create user – name and role are optional
     const user = await prisma.user.create({
       data: {
         email,
@@ -40,8 +43,19 @@ exports.register = async (req, res) => {
       user: { id: user.id, email: user.email, name: user.name, role: user.role }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    // Log the full error details
+    console.error("REGISTRATION ERROR:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    });
+
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      details: error.meta
+    });
   }
 };
 
@@ -49,6 +63,9 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Log login attempt
+    console.log("Login attempt:", { email });
 
     // Find user
     const user = await prisma.user.findUnique({ where: { email } });
@@ -74,7 +91,16 @@ exports.login = async (req, res) => {
       user: { id: user.id, email: user.email, name: user.name, role: user.role }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("LOGIN ERROR:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+      stack: error.stack
+    });
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      details: error.meta
+    });
   }
 };
