@@ -3,17 +3,17 @@ generator client {
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 datasource db {
- provider = "postgresql"
- url      = env("postgresql://neoconnect_user:9VoyqkrKxOIirP08FaaWX6gCTEoQcl6l@dpg-d6q1lap5pdvs73a4fei0-a/neoconnect")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
-
 model User {
- id        Int      @id @default(autoincrement())
- email     String   @unique
- password  String
- createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?   // ← Must have the ?
+  role      String?   // ← Must have the ?
+  createdAt DateTime @default(now())
 }
-
 model Case {
  id          Int      @id @default(autoincrement())
  title       String
