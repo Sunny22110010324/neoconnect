@@ -18,10 +18,14 @@ app.use("/api/auth",authRoutes)
 app.use("/api/cases",caseRoutes)
 app.use("/api/polls",pollRoutes)
 
-app.get("/",(req,res)=>{
- res.send("NeoConnect API Running")
+app.get("/", (req, res) => {
+  res.json({
+    status: "OK",
+    service: "NeoConnect API",
+    uptime: process.uptime(),
+    timestamp: new Date()
+  })
 })
-
 const PORT = process.env.PORT || 5000
 
 app.listen(PORT, () => {
