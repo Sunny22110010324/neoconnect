@@ -1,50 +1,80 @@
-const {PrismaClient} = require("@prisma/client")
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-exports.register = async(req,res)=>{
+// Register a new user
+exports.register = async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
 
- const {name,email,password,role} = req.body
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
- const hashed = await bcrypt.hash(password,10)
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
- const user = await prisma.user.create({
+    // Create user – name and role are optional; default role to "USER"
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: name || null,
+        role: role || "USER"
+      }
+    });
 
-  data:{
-   name,
-   email,
-   password:hashed,
-   role
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
+};
 
- })
+// Login user
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
- res.json(user)
+    // Find user
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-}
+    // Compare password
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-exports.login = async(req,res)=>{
+    // Generate token
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
- const {email,password} = req.body
-
- const user = await prisma.user.findUnique({where:{email}})
-
- if(!user) return res.status(400).json({msg:"User not found"})
-
- const valid = await bcrypt.compare(password,user.password)
-
- if(!valid) return res.status(400).json({msg:"Wrong password"})
-
- const token = jwt.sign(
-
- {id:user.id,role:user.role},
-
- process.env.JWT_SECRET
-
- )
-
- res.json({token})
-
-}
+    res.json({
+      token,
+      user: { id: user.id, email: user.email, name: user.name, role: user.role }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
