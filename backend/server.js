@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const { PrismaClient } = require("@prisma/client");
+const fs = require("fs"); // Added for debug route
 require("dotenv").config();
 
 const app = express();
@@ -10,10 +11,21 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: ['https://neoconnect-mauve.vercel.app', 'http://localhost:3000'], // Allow your frontend domains
+  origin: ['https://neoconnect-mauve.vercel.app', 'http://localhost:3000'],
   credentials: true
 }));
 app.use(express.json());
+
+// Debug route: shows the actual schema.prisma file being used by the server
+app.get("/api/debug/schema", (req, res) => {
+  try {
+    const schemaPath = "./prisma/schema.prisma";
+    const schema = fs.readFileSync(schemaPath, "utf8");
+    res.type("text/plain").send(schema);
+  } catch (err) {
+    res.status(500).send("Error reading schema: " + err.message);
+  }
+});
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
@@ -25,7 +37,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/cases", caseRoutes);
 app.use("/api/polls", pollRoutes);
 
-// Test database endpoint (optional, for debugging)
+// Test database endpoint (optional)
 app.get("/api/test-db", async (req, res) => {
   try {
     const userCount = await prisma.user.count();
@@ -50,7 +62,7 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-// Health check (root)
+// Health check
 app.get("/", (req, res) => {
   res.json({
     status: "OK",
@@ -60,12 +72,12 @@ app.get("/", (req, res) => {
   });
 });
 
-// 404 handler for unmatched routes
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Endpoint not found" });
 });
 
-// Error handling middleware
+// Error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({ message: "Internal server error" });
