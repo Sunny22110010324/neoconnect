@@ -93,19 +93,19 @@ export default function CasesPage() {
   );
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   container: {
     maxWidth: "1200px",
     margin: "0 auto",
     padding: "40px 20px"
   },
   title: {
-    textAlign: "center" as const,
+    textAlign: "center",
     marginBottom: "30px"
   },
   table: {
     width: "100%",
-    borderCollapse: "collapse" as const,
+    borderCollapse: "collapse",
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
   },
   viewButton: {
