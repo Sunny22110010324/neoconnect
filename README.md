@@ -1,10 +1,7 @@
 # NeoConnect Complaint Management System
 
 <div align="center">
-  <!-- Your custom image -->
   <img src="neconnect.png" alt="NeoConnect Logo" width="800" height="400" style="max-width:100%; height:auto;" />
-  
- 
   
   [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?logo=node.js)](https://nodejs.org)
@@ -46,33 +43,87 @@
 
 | Platform | URL |
 |----------|-----|
-| 🌐 **Frontend (Vercel)** | [https://neoconnect-mauve.vercel.app] |
-| ⚙️ **Backend (Render)** | [https://neoconnect-5xcp.onrender.com] |
+| 🌐 **Frontend (Vercel)** | [https://neoconnect-mauve.vercel.app](https://neoconnect-mauve.vercel.app) |
+| ⚙️ **Backend (Render)** | [https://neoconnect-5xcp.onrender.com](https://neoconnect-5xcp.onrender.com) |
 
 ---
 
 ## 🛠️ Setup Instructions
 
-### Backend
+### Prerequisites
+- Node.js (v18 or higher)
+- PostgreSQL (v15 recommended)
+- npm or yarn
 
-```bash
-# Navigate to backend folder
-cd backend
+### Backend Setup
 
-# Install dependencies
-npm install
+1. **Navigate to the backend folder**  
+   ```bash
+   cd backend
+   ```
 
-# Start the server
-node server.js
-```
-### Frontend
-```bash
-# Navigate to frontend folder
-cd frontend
+2. **Install dependencies**  
+   ```bash
+   npm install
+   ```
 
-# Install dependencies
-npm install
+3. **Set up environment variables**  
+   Create a `.env` file based on `.env.example`:
+   ```env
+   DATABASE_URL="postgresql://username:password@localhost:5432/neoconnect"
+   JWT_SECRET="your-secret-key"
+   PORT=5000
+   ```
 
-# Run development server
-npm run dev
-```
+4. **Run database migrations**  
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+
+5. **Start the server**  
+   ```bash
+   node server.js
+   ```
+
+### Frontend Setup
+
+1. **Navigate to the frontend folder**  
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**  
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**  
+   Create a `.env.local` file:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:5000   # or your production backend URL
+   ```
+
+4. **Run the development server**  
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+| | | |
+|:---:|:---:|:---:|
+| **🏠 Dashboard** | **📝 Submit Case** | **📋 Cases List** |
+| <img src="screenshots/dashboard.png" alt="Dashboard" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="screenshots/submit-case.png" alt="Submit Case" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="screenshots/cases.png" alt="Cases List" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> |
+| *Overview & Navigation* | *Complaint Submission Form* | *Track Your Cases* |
+| **🗳️ Polls** | **📢 Public Hub** | **🔍 Case Details** |
+| <img src="screenshots/polls.png" alt="Polls" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="screenshots/hub.png" alt="Public Hub" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <div style="padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;"><strong>6 Screenshots Total</strong><br>Each demonstrating a key feature of NeoConnect</div> |
+| *Vote on Community Polls* | *Resolved Cases & Updates* | *Complete Case Management* |
+
+</div>
+
+*(Create a `screenshots` folder in your repository and add images.)*
+
