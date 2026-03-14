@@ -30,7 +30,12 @@ export default function PollsPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setPolls(data);
+      // Parse options from JSON string to array
+      const parsedData = data.map((poll: any) => ({
+        ...poll,
+        options: JSON.parse(poll.options)
+      }));
+      setPolls(parsedData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -50,7 +55,7 @@ export default function PollsPage() {
         body: JSON.stringify({ option: optionIndex })
       });
       if (res.ok) {
-        fetchPolls();
+        fetchPolls(); // refresh to update userVote
       } else {
         alert("Vote failed");
       }
