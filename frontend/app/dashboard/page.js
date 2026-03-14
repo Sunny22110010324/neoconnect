@@ -1,90 +1,93 @@
 "use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
+
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Dashboard() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
-      return;
     }
-
-    // Use the correct profile endpoint from backend
-    axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then((res) => setUser(res.data))
-      .catch((err) => {
-        console.error("Profile fetch error:", err);
-        // If token is invalid, clear it and redirect to login
-        localStorage.removeItem("token");
-        router.push("/login");
-      })
-      .finally(() => setLoading(false));
   }, [router]);
 
-  if (loading) return <div style={styles.loading}>Loading...</div>;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
+  const navigateTo = (path) => {
+    router.push(path);
+  };
 
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Welcome{user ? `, ${user.email}` : " to NeoConnect"}!</h1>
-        <p style={styles.text}>This is your dashboard. More features coming soon.</p>
-        <button
-          style={styles.button}
-          onClick={() => {
-            localStorage.removeItem("token");
-            router.push("/login");
-          }}
-        >
-          Logout
+      <h1 style={styles.title}>Welcome to NeoConnect Dashboard</h1>
+      <p style={styles.text}>You are logged in. Choose an option below:</p>
+      
+      <div style={styles.buttonGrid}>
+        <button onClick={() => navigateTo("/submit-case")} style={styles.navButton}>
+          Submit Case
+        </button>
+        <button onClick={() => navigateTo("/cases")} style={styles.navButton}>
+          View Cases
+        </button>
+        <button onClick={() => navigateTo("/polls")} style={styles.navButton}>
+          Polls
+        </button>
+        <button onClick={() => navigateTo("/hub")} style={styles.navButton}>
+          Public Hub
         </button>
       </div>
+
+      <button onClick={handleLogout} style={styles.logoutButton}>
+        Logout
+      </button>
     </div>
   );
 }
 
 const styles = {
   container: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#f0f2f5"
-  },
-  card: {
-    background: "white",
-    padding: "40px",
-    borderRadius: "12px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-    width: "400px",
-    textAlign: "center"
+    maxWidth: "800px",
+    margin: "0 auto",
+    padding: "40px 20px",
+    textAlign: "center" as const
   },
   title: {
+    fontSize: "2rem",
     marginBottom: "20px"
   },
   text: {
+    fontSize: "1.2rem",
     marginBottom: "30px",
     color: "#555"
   },
-  button: {
-    padding: "10px 20px",
-    background: "#4facfe",
-    border: "none",
-    color: "white",
-    fontSize: "16px",
-    borderRadius: "6px",
-    cursor: "pointer"
+  buttonGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "15px",
+    marginBottom: "30px"
   },
-  loading: {
-    textAlign: "center",
-    marginTop: "50px"
+  navButton: {
+    padding: "12px 20px",
+    background: "#4facfe",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "background 0.3s"
+  },
+  logoutButton: {
+    padding: "10px 30px",
+    background: "#ff4757",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "16px",
+    cursor: "pointer"
   }
 };
