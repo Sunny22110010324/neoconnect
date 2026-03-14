@@ -1,36 +1,15 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-const authRoutes = require("./routes/authRoutes");
+async function startServer() {
+  await prisma.$connect();
+  console.log("Database connected");
 
-const app = express();
+  const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(express.json());
-
-/* Health check route */
-app.get("/", (req, res) => {
-  res.json({
-    status: "OK",
-    service: "NeoConnect API",
-    uptime: process.uptime(),
-    timestamp: new Date()
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
-});
+}
 
-/* Auth routes */
-app.use("/api/auth", authRoutes);
-
-/* 404 handler */
-app.use((req, res) => {
-  res.status(404).json({
-    message: "Endpoint not found"
-  });
-});
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+startServer();
