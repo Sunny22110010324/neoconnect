@@ -15,14 +15,15 @@ export default function Dashboard() {
       return;
     }
 
-    // Optional: fetch current user info if you have an endpoint like /api/auth/me
+    // Use the correct profile endpoint from backend
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/api/user/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => setUser(res.data))
-      .catch(() => {
-        // If token invalid, redirect to login
+      .catch((err) => {
+        console.error("Profile fetch error:", err);
+        // If token is invalid, clear it and redirect to login
         localStorage.removeItem("token");
         router.push("/login");
       })
