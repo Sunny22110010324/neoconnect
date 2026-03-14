@@ -30,10 +30,10 @@ export default function PollsPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      // Parse options from JSON string to array
+      // Parse options only if they are strings (backend may already parse)
       const parsedData = data.map((poll: any) => ({
         ...poll,
-        options: JSON.parse(poll.options)
+        options: typeof poll.options === 'string' ? JSON.parse(poll.options) : poll.options
       }));
       setPolls(parsedData);
     } catch (err) {
@@ -80,9 +80,10 @@ export default function PollsPage() {
       if (res.ok) {
         setNewPoll({ question: "", options: "" });
         setShowCreate(false);
-        fetchPolls(); // <-- IMPORTANT: refresh the list
+        fetchPolls(); // refresh the list
       } else {
-        alert("Failed to create poll");
+        const err = await res.json();
+        alert(`Failed to create poll: ${err.message || "Unknown error"}`);
       }
     } catch (err) {
       console.error(err);
