@@ -50,7 +50,6 @@ export default function PollsPage() {
         body: JSON.stringify({ option: optionIndex })
       });
       if (res.ok) {
-        // Refresh polls to update userVote
         fetchPolls();
       } else {
         alert("Vote failed");
@@ -144,16 +143,71 @@ export default function PollsPage() {
 }
 
 const styles = {
-  container: { maxWidth: "800px", margin: "0 auto", padding: "40px 20px" },
-  title: { textAlign: "center" as const, marginBottom: "30px" },
-  button: { padding: "10px 20px", background: "#4facfe", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", marginBottom: "20px" },
-  form: { display: "flex", flexDirection: "column" as const, gap: "10px", marginBottom: "20px" },
-  input: { padding: "10px", border: "1px solid #ccc", borderRadius: "6px" },
-  pollList: { display: "flex", flexDirection: "column" as const, gap: "20px" },
-  pollCard: { border: "1px solid #eee", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
-  options: { display: "flex", flexDirection: "column" as const, gap: "10px", marginTop: "10px" },
-  option: { display: "flex", alignItems: "center", gap: "10px" },
-  voteButton: { padding: "8px 16px", border: "none", borderRadius: "4px", color: "white", cursor: "pointer" },
-  date: { fontSize: "0.9em", color: "#666", marginTop: "10px" },
-  loading: { textAlign: "center", marginTop: "50px" }
+  container: {
+    maxWidth: "800px",
+    margin: "0 auto",
+    padding: "40px 20px"
+  } as const,
+  title: {
+    textAlign: "center" as const,
+    marginBottom: "30px"
+  } as const,
+  button: {
+    padding: "10px 20px",
+    background: "#4facfe",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    marginBottom: "20px"
+  } as const,
+  form: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "10px",
+    marginBottom: "20px"
+  } as const,
+  input: {
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "6px"
+  } as const,
+  pollList: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "20px"
+  } as const,
+  pollCard: {
+    border: "1px solid #eee",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+  } as const,
+  options: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "10px",
+    marginTop: "10px"
+  } as const,
+  option: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px"
+  } as const,
+  voteButton: {
+    padding: "8px 16px",
+    border: "none",
+    borderRadius: "4px",
+    color: "white",
+    cursor: "pointer"
+  } as const,
+  date: {
+    fontSize: "0.9em",
+    color: "#666",
+    marginTop: "10px"
+  } as const,
+  loading: {
+    textAlign: "center" as const,
+    marginTop: "50px"
+  } as const
 };
