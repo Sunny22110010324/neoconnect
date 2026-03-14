@@ -61,9 +61,28 @@ export default function HubPage() {
 }
 
 const styles = {
-  container: { maxWidth: "800px", margin: "0 auto", padding: "40px 20px" },
-  title: { textAlign: "center" as const, marginBottom: "30px" },
-  caseList: { display: "flex", flexDirection: "column" as const, gap: "20px" },
-  caseCard: { border: "1px solid #eee", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
-  loading: { textAlign: "center", marginTop: "50px" }
+  container: {
+    maxWidth: "800px",
+    margin: "0 auto",
+    padding: "40px 20px"
+  } as const,
+  title: {
+    textAlign: "center" as const,
+    marginBottom: "30px"
+  } as const,
+  caseList: {
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "20px"
+  } as const,
+  caseCard: {
+    border: "1px solid #eee",
+    padding: "20px",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+  } as const,
+  loading: {
+    textAlign: "center" as const,
+    marginTop: "50px"
+  } as const
 };
