@@ -120,7 +120,7 @@
 | <img src="images/dashboard.png" alt="Dashboard" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="images/submit-case.png" alt="Submit Case" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="images/cases.png" alt="Cases List" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> |
 | *Overview & Navigation* | *Complaint Submission Form* | *Track Your Cases* |
 | **🗳️ Polls** | **📢 Public Hub** | **🔍 Case Details** |
-| <img src="images/polls.png" alt="Polls" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="images/hub.png" alt="Public Hub" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <div style="padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;"><strong>6 Screenshots Total</strong><br>Each demonstrating a key feature of NeoConnect</div> |
+| <img src="images/poll.png" alt="Polls" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <img src="images/hub.png" alt="Public Hub" width="250" style="border-radius: 8px; border: 1px solid #e5e7eb;"> | <div style="padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1;"><strong>6 Screenshots Total</strong><br>Each demonstrating a key feature of NeoConnect</div> |
 | *Vote on Community Polls* | *Resolved Cases & Updates* | *Complete Case Management* |
 
 </div>
