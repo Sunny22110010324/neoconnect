@@ -1,55 +1,178 @@
-const {PrismaClient} = require("@prisma/client")
-const prisma = new PrismaClient()
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 
-function generateTrackingId(){
-
- const year = new Date().getFullYear()
- const num = Math.floor(Math.random()*1000)
-
- return `NEO-${year}-${num}`
-
-}
-
-exports.submitCase = async(req,res)=>{
-
- const {category,department,location,severity} = req.body
-
- const caseData = await prisma.case.create({
-
-  data:{
-   trackingId:generateTrackingId(),
-   category,
-   department,
-   location,
-   severity,
-   status:"New"
+// Helper to generate tracking ID: NEO-YYYY-001
+async function generateTrackingId() {
+  const year = new Date().getFullYear();
+  const lastCase = await prisma.case.findFirst({
+    where: { trackingId: { startsWith: `NEO-${year}` } },
+    orderBy: { id: "desc" }
+  });
+  let nextNum = 1;
+  if (lastCase) {
+    const lastNum = parseInt(lastCase.trackingId.split("-")[2]);
+    nextNum = lastNum + 1;
   }
-
- })
-
- res.json(caseData)
-
+  return `NEO-${year}-${String(nextNum).padStart(3, "0")}`;
 }
 
-exports.getCases = async(req,res)=>{
+// 1. Submit a new case (any authenticated user)
+exports.submitCase = async (req, res) => {
+  try {
+    const { category, department, location, severity, anonymous, description } = req.body;
+    const trackingId = await generateTrackingId();
 
- const cases = await prisma.case.findMany()
+    const newCase = await prisma.case.create({
+      data: {
+        trackingId,
+        category,
+        department,
+        location,
+        severity,
+        anonymous,
+        description,
+        status: "New",
+        userId: anonymous ? null : req.user.id
+      }
+    });
 
- res.json(cases)
+    res.status(201).json(newCase);
+  } catch (error) {
+    console.error("Submit case error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-}
+// 2. Get all cases (role-based)
+exports.getCases = async (req, res) => {
+  try {
+    const user = req.user;
+    let cases;
 
-exports.updateStatus = async(req,res)=>{
+    if (user.role === "ADMIN" || user.role === "SECRETARIAT") {
+      // Admins and secretariat see all cases
+      cases = await prisma.case.findMany({
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+          assignedUser: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" }
+      });
+    } else if (user.role === "CASE_MANAGER") {
+      // Case managers see only cases assigned to them
+      cases = await prisma.case.findMany({
+        where: { assignedTo: user.id },
+        include: {
+          user: { select: { id: true, name: true, email: true } }
+        },
+        orderBy: { createdAt: "desc" }
+      });
+    } else {
+      // Regular staff see only their own non-anonymous cases
+      cases = await prisma.case.findMany({
+        where: { userId: user.id },
+        include: {
+          assignedUser: { select: { id: true, name: true } }
+        },
+        orderBy: { createdAt: "desc" }
+      });
+    }
 
- const {id,status} = req.body
+    res.json(cases);
+  } catch (error) {
+    console.error("Get cases error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
- const updated = await prisma.case.update({
+// 3. Get a single case by ID (with access control)
+exports.getCaseById = async (req, res) => {
+  try {
+    const caseId = parseInt(req.params.id);
+    const caseItem = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        assignedUser: { select: { id: true, name: true } }
+      }
+    });
 
-  where:{id},
-  data:{status}
+    if (!caseItem) return res.status(404).json({ message: "Case not found" });
 
- })
+    // Role-based access check
+    const user = req.user;
+    if (user.role === "ADMIN" || user.role === "SECRETARIAT") {
+      // allowed
+    } else if (user.role === "CASE_MANAGER") {
+      if (caseItem.assignedTo !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    } else {
+      if (caseItem.userId !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    }
 
- res.json(updated)
+    res.json(caseItem);
+  } catch (error) {
+    console.error("Get case by id error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
-}
+// 4. Assign a case to a case manager (Admin/Secretariat only)
+exports.assignCase = async (req, res) => {
+  try {
+    if (req.user.role !== "ADMIN" && req.user.role !== "SECRETARIAT") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const caseId = parseInt(req.params.id);
+    const { assignedTo } = req.body; // user ID of case manager
+
+    const updatedCase = await prisma.case.update({
+      where: { id: caseId },
+      data: {
+        assignedTo,
+        status: "Assigned"
+      }
+    });
+
+    res.json(updatedCase);
+  } catch (error) {
+    console.error("Assign case error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// 5. Update case status and/or notes (Case Manager, Admin, Secretariat)
+exports.updateCase = async (req, res) => {
+  try {
+    const caseId = parseInt(req.params.id);
+    const { status, notes } = req.body;
+
+    const caseItem = await prisma.case.findUnique({ where: { id: caseId } });
+    if (!caseItem) return res.status(404).json({ message: "Case not found" });
+
+    // Check permissions: case manager (assigned), admin, secretariat
+    const user = req.user;
+    if (user.role !== "ADMIN" && user.role !== "SECRETARIAT") {
+      if (caseItem.assignedTo !== user.id) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+    }
+
+    const updatedCase = await prisma.case.update({
+      where: { id: caseId },
+      data: {
+        status: status || caseItem.status,
+        notes: notes || caseItem.notes
+      }
+    });
+
+    res.json(updatedCase);
+  } catch (error) {
+    console.error("Update case error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
