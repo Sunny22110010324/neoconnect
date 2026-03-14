@@ -1,9 +1,14 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-// Create a poll (Secretariat/Admin only)
+// Create a poll – only Admin/Secretariat allowed
 exports.createPoll = async (req, res) => {
   try {
+    // Check user role
+    if (req.user.role !== "ADMIN" && req.user.role !== "SECRETARIAT") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     const { question, options } = req.body; // options as array of strings
     if (!question || !options || !Array.isArray(options)) {
       return res.status(400).json({ message: "Invalid input" });
@@ -17,7 +22,7 @@ exports.createPoll = async (req, res) => {
     });
     res.status(201).json(poll);
   } catch (error) {
-    console.error(error);
+    console.error("Create poll error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -43,7 +48,7 @@ exports.getPolls = async (req, res) => {
     }));
     res.json(formattedPolls);
   } catch (error) {
-    console.error(error);
+    console.error("Get polls error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -74,7 +79,7 @@ exports.votePoll = async (req, res) => {
     });
     res.status(201).json(vote);
   } catch (error) {
-    console.error(error);
+    console.error("Vote poll error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -94,7 +99,7 @@ exports.getPollResults = async (req, res) => {
     }, {});
     res.json(results);
   } catch (error) {
-    console.error(error);
+    console.error("Get results error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
