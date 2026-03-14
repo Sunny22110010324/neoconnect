@@ -50,7 +50,6 @@ exports.getCases = async (req, res) => {
     let cases;
 
     if (user.role === "ADMIN" || user.role === "SECRETARIAT") {
-      // Admins and secretariat see all cases
       cases = await prisma.case.findMany({
         include: {
           user: { select: { id: true, name: true, email: true } },
@@ -59,7 +58,6 @@ exports.getCases = async (req, res) => {
         orderBy: { createdAt: "desc" }
       });
     } else if (user.role === "CASE_MANAGER") {
-      // Case managers see only cases assigned to them
       cases = await prisma.case.findMany({
         where: { assignedTo: user.id },
         include: {
@@ -68,7 +66,6 @@ exports.getCases = async (req, res) => {
         orderBy: { createdAt: "desc" }
       });
     } else {
-      // Regular staff see only their own non-anonymous cases
       cases = await prisma.case.findMany({
         where: { userId: user.id },
         include: {
@@ -99,7 +96,6 @@ exports.getCaseById = async (req, res) => {
 
     if (!caseItem) return res.status(404).json({ message: "Case not found" });
 
-    // Role-based access check
     const user = req.user;
     if (user.role === "ADMIN" || user.role === "SECRETARIAT") {
       // allowed
@@ -128,7 +124,7 @@ exports.assignCase = async (req, res) => {
     }
 
     const caseId = parseInt(req.params.id);
-    const { assignedTo } = req.body; // user ID of case manager
+    const { assignedTo } = req.body;
 
     const updatedCase = await prisma.case.update({
       where: { id: caseId },
@@ -154,7 +150,6 @@ exports.updateCase = async (req, res) => {
     const caseItem = await prisma.case.findUnique({ where: { id: caseId } });
     if (!caseItem) return res.status(404).json({ message: "Case not found" });
 
-    // Check permissions: case manager (assigned), admin, secretariat
     const user = req.user;
     if (user.role !== "ADMIN" && user.role !== "SECRETARIAT") {
       if (caseItem.assignedTo !== user.id) {
@@ -173,6 +168,29 @@ exports.updateCase = async (req, res) => {
     res.json(updatedCase);
   } catch (error) {
     console.error("Update case error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// 6. Get resolved cases for public hub (any authenticated user)
+exports.getResolvedCases = async (req, res) => {
+  try {
+    const cases = await prisma.case.findMany({
+      where: { status: "Resolved" },
+      select: {
+        trackingId: true,
+        category: true,
+        department: true,
+        description: true,
+        createdAt: true,
+        notes: true
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 20
+    });
+    res.json(cases);
+  } catch (error) {
+    console.error("Get resolved cases error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
