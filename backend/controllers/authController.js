@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 
 const prisma = new PrismaClient();
 
+/* REGISTER */
 exports.register = async (req, res) => {
+
   try {
 
     const { email, password, name } = req.body;
@@ -46,7 +48,9 @@ exports.register = async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(error);
+
     res.status(500).json({
       message: "Server error",
       error: error.message
@@ -55,7 +59,9 @@ exports.register = async (req, res) => {
 };
 
 
+/* LOGIN */
 exports.login = async (req, res) => {
+
   try {
 
     const { email, password } = req.body;
@@ -70,9 +76,9 @@ exports.login = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
+    if (!validPassword) {
       return res.status(401).json({
         message: "Invalid password"
       });
@@ -95,7 +101,9 @@ exports.login = async (req, res) => {
     });
 
   } catch (error) {
+
     console.error(error);
+
     res.status(500).json({
       message: "Server error",
       error: error.message

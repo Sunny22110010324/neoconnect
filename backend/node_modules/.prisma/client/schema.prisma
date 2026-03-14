@@ -8,10 +8,22 @@ datasource db {
 }
 
 model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+  name     String
+  role     String @default("USER")
+}
+
+model Case {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  description String
+  title       String
+}
+
+model Poll {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("USER")
+  question  String
   createdAt DateTime @default(now())
 }
