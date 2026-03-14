@@ -80,7 +80,7 @@ export default function PollsPage() {
       if (res.ok) {
         setNewPoll({ question: "", options: "" });
         setShowCreate(false);
-        fetchPolls();
+        fetchPolls(); // <-- IMPORTANT: refresh the list
       } else {
         alert("Failed to create poll");
       }
@@ -119,29 +119,33 @@ export default function PollsPage() {
         </form>
       )}
       <div style={styles.pollList}>
-        {polls.map(poll => (
-          <div key={poll.id} style={styles.pollCard}>
-            <h3>{poll.question}</h3>
-            <div style={styles.options}>
-              {poll.options.map((opt, idx) => (
-                <div key={idx} style={styles.option}>
-                  <button
-                    onClick={() => handleVote(poll.id, idx)}
-                    disabled={poll.userVote !== null}
-                    style={{
-                      ...styles.voteButton,
-                      background: poll.userVote === idx ? "#4caf50" : "#4facfe"
-                    }}
-                  >
-                    {opt}
-                  </button>
-                  {poll.userVote === idx && <span> (Your vote)</span>}
-                </div>
-              ))}
+        {polls.length === 0 ? (
+          <p>No polls yet. Create one!</p>
+        ) : (
+          polls.map(poll => (
+            <div key={poll.id} style={styles.pollCard}>
+              <h3>{poll.question}</h3>
+              <div style={styles.options}>
+                {poll.options.map((opt, idx) => (
+                  <div key={idx} style={styles.option}>
+                    <button
+                      onClick={() => handleVote(poll.id, idx)}
+                      disabled={poll.userVote !== null}
+                      style={{
+                        ...styles.voteButton,
+                        background: poll.userVote === idx ? "#4caf50" : "#4facfe"
+                      }}
+                    >
+                      {opt}
+                    </button>
+                    {poll.userVote === idx && <span> (Your vote)</span>}
+                  </div>
+                ))}
+              </div>
+              <p style={styles.date}>Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
             </div>
-            <p style={styles.date}>Created: {new Date(poll.createdAt).toLocaleDateString()}</p>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
