@@ -55,13 +55,13 @@ app.post("/api/auth/register", async (req, res) => {
     }
 
     const user = await prisma.user.create({
-      data: {
-        email,
-        password, // ⚠️ You should hash this in production (bcrypt)
-        name,
-        role: "USER"
-      }
-    });
+  data: {
+    email,
+    password,
+    name: name || "User",   // fallback if name is missing
+    role: "USER"
+  }
+});
 
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
