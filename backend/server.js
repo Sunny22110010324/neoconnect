@@ -18,7 +18,7 @@ app.use(express.json());
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const caseRoutes = require("./routes/caseRoutes");
-const pollRoutes = require("./routes/pollRoutes"); // added
+const pollRoutes = require("./routes/pollRoutes");
 
 // Mount routes
 app.use("/api/auth", authRoutes);
@@ -62,7 +62,7 @@ app.use((req, res) => {
   res.status(404).json({ message: "Endpoint not found" });
 });
 
-// Error handler
+// Global error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({ message: "Internal server error" });
@@ -70,5 +70,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
