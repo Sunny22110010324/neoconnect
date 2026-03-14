@@ -4,12 +4,11 @@ const prisma = new PrismaClient();
 // Create a poll – only Admin/Secretariat allowed
 exports.createPoll = async (req, res) => {
   try {
-    // Check user role
     if (req.user.role !== "ADMIN" && req.user.role !== "SECRETARIAT") {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const { question, options } = req.body; // options as array of strings
+    const { question, options } = req.body;
     if (!question || !options || !Array.isArray(options)) {
       return res.status(400).json({ message: "Invalid input" });
     }
@@ -27,7 +26,7 @@ exports.createPoll = async (req, res) => {
   }
 };
 
-// Get all polls (with user's vote if any)
+// Get all polls (with user's vote)
 exports.getPolls = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -40,13 +39,12 @@ exports.getPolls = async (req, res) => {
       },
       orderBy: { createdAt: "desc" }
     });
-    // Transform options from JSON string back to array
-    const formattedPolls = polls.map(poll => ({
-      ...poll,
-      options: JSON.parse(poll.options),
-      userVote: poll.votes.length > 0 ? poll.votes[0].option : null
+    const formatted = polls.map(p => ({
+      ...p,
+      options: JSON.parse(p.options),
+      userVote: p.votes.length ? p.votes[0].option : null
     }));
-    res.json(formattedPolls);
+    res.json(formatted);
   } catch (error) {
     console.error("Get polls error:", error);
     res.status(500).json({ message: "Server error" });
@@ -60,46 +58,17 @@ exports.votePoll = async (req, res) => {
     const { option } = req.body;
     const userId = req.user.id;
 
-    // Check if already voted
-    const existingVote = await prisma.vote.findUnique({
-      where: {
-        userId_pollId: { userId, pollId }
-      }
+    const existing = await prisma.vote.findUnique({
+      where: { userId_pollId: { userId, pollId } }
     });
-    if (existingVote) {
-      return res.status(400).json({ message: "Already voted" });
-    }
+    if (existing) return res.status(400).json({ message: "Already voted" });
 
     const vote = await prisma.vote.create({
-      data: {
-        userId,
-        pollId,
-        option
-      }
+      data: { userId, pollId, option }
     });
     res.status(201).json(vote);
   } catch (error) {
-    console.error("Vote poll error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Get results for a poll
-exports.getPollResults = async (req, res) => {
-  try {
-    const pollId = parseInt(req.params.id);
-    const votes = await prisma.vote.findMany({
-      where: { pollId },
-      select: { option: true }
-    });
-    // Count votes per option
-    const results = votes.reduce((acc, v) => {
-      acc[v.option] = (acc[v.option] || 0) + 1;
-      return acc;
-    }, {});
-    res.json(results);
-  } catch (error) {
-    console.error("Get results error:", error);
+    console.error("Vote error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
