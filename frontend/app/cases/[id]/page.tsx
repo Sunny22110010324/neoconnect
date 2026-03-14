@@ -140,11 +140,11 @@ export default function CaseDetailPage() {
 }
 
 const styles = {
-  container: { maxWidth: "800px", margin: "0 auto", padding: "40px 20px" },
-  title: { textAlign: "center" as const, marginBottom: "30px" },
-  card: { border: "1px solid #eee", padding: "20px", borderRadius: "8px", marginBottom: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
-  form: { display: "flex", flexDirection: "column" as const, gap: "15px" },
-  input: { padding: "10px", border: "1px solid #ccc", borderRadius: "6px", fontSize: "16px" },
-  button: { padding: "10px 20px", background: "#4facfe", color: "white", border: "none", borderRadius: "6px", cursor: "pointer" },
-  loading: { textAlign: "center", marginTop: "50px" }
+  container: { maxWidth: "800px", margin: "0 auto", padding: "40px 20px" } as const,
+  title: { textAlign: "center" as const, marginBottom: "30px" } as const,
+  card: { border: "1px solid #eee", padding: "20px", borderRadius: "8px", marginBottom: "20px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" } as const,
+  form: { display: "flex", flexDirection: "column" as const, gap: "15px" } as const,
+  input: { padding: "10px", border: "1px solid #ccc", borderRadius: "6px", fontSize: "16px" } as const,
+  button: { padding: "10px 20px", background: "#4facfe", color: "white", border: "none", borderRadius: "6px", cursor: "pointer" } as const,
+  loading: { textAlign: "center" as const, marginTop: "50px" } as const,
 };
