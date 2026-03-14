@@ -4,23 +4,31 @@ const helmet = require("helmet");
 const { PrismaClient } = require("@prisma/client");
 require("dotenv").config();
 
+const app = express();
+const prisma = new PrismaClient();
+
+// Middleware
+app.use(helmet());
+app.use(cors({
+  origin: ['https://neoconnect-mauve.vercel.app', 'http://localhost:3000'], // Allow your frontend domains
+  credentials: true
+}));
+app.use(express.json());
+
+// Import routes
 const authRoutes = require("./routes/authRoutes");
 const caseRoutes = require("./routes/caseRoutes");
 const pollRoutes = require("./routes/pollRoutes");
 
-const app = express();
-const prisma = new PrismaClient();
+// Mount routes
+app.use("/api/auth", authRoutes);
+app.use("/api/cases", caseRoutes);
+app.use("/api/polls", pollRoutes);
 
-app.use(cors());
-app.use(express.json());
-app.use(helmet());
-
-// Test database route (temporary for debugging)
+// Test database endpoint (optional, for debugging)
 app.get("/api/test-db", async (req, res) => {
   try {
-    // Try to query the User table
     const userCount = await prisma.user.count();
-    // Get list of tables in public schema
     const tables = await prisma.$queryRaw`
       SELECT table_name 
       FROM information_schema.tables 
@@ -42,12 +50,7 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-// API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/cases", caseRoutes);
-app.use("/api/polls", pollRoutes);
-
-// Health check
+// Health check (root)
 app.get("/", (req, res) => {
   res.json({
     status: "OK",
@@ -57,7 +60,18 @@ app.get("/", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// 404 handler for unmatched routes
+app.use((req, res) => {
+  res.status(404).json({ message: "Endpoint not found" });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(500).json({ message: "Internal server error" });
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
