@@ -19,11 +19,11 @@ app.use(express.json());
 const authRoutes = require("./routes/authRoutes");
 const caseRoutes = require("./routes/caseRoutes");
 const pollRoutes = require("./routes/pollRoutes");
+app.use("/api/polls", pollRoutes);
 
 // Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/cases", caseRoutes);
-app.use("/api/polls", pollRoutes);
 
 // Test database endpoint (optional)
 app.get("/api/test-db", async (req, res) => {
