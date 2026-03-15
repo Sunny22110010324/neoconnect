@@ -43,9 +43,12 @@
 
 | Platform | URL |
 |----------|-----|
+<<<<<<< HEAD
 | 🌐 **Frontend (Vercel)** | [https://neoconnect-6ff287fbf-sunny22110010324-projects.vercel.app] |
+=======
+| 🌐 **Frontend (Vercel)** | [https://neoconnect-6ff287lbf-sunny22110010324s-projects.vercel.app] |
+>>>>>>> c6f8d37fbb5fdd98fe81201cde206d94b49ce925
 | ⚙️ **Backend (Render)** | [https://neoconnect-5xcp.onrender.com](https://neoconnect-5xcp.onrender.com) |
-
 ---
 
 ## 🛠️ Setup Instructions
