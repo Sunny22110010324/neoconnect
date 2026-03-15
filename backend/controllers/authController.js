@@ -1,87 +1,60 @@
-const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-/* REGISTER */
+// Register a new user
 exports.register = async (req, res) => {
-
   try {
-
     const { email, password, name } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
-
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists"
-      });
+      return res.status(400).json({ message: "User already exists" });
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create user
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        name
+        name: name || "User",
+        role: "USER"
       }
     });
 
+    // Generate JWT
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.status(201).json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    });
-
+    res.status(201).json({ token, user: { id: user.id, email: user.email, role: user.role } });
   } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server error",
-      error: error.message
-    });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
-/* LOGIN */
+// Login user
 exports.login = async (req, res) => {
-
   try {
-
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
-
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(401).json({
-        message: "Invalid password"
-      });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
@@ -90,23 +63,9 @@ exports.login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    });
-
+    res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
   } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      message: "Server error",
-      error: error.message
-    });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
